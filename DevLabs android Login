@@ -1,0 +1,70 @@
+package com.example.a47980210w.ourway;
+
+import android.content.Intent;
+import android.os.StrictMode;
+import android.service.autofill.Dataset;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class LoginActivity extends AppCompatActivity {
+
+    private Button buttonLogin;
+    private EditText editTextUser, editTextPassword;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
+
+        buttonLogin = findViewById(R.id.bt_login);
+        editTextUser = findViewById(R.id.et_user);
+        editTextPassword = findViewById(R.id.et_password);
+
+
+        buttonLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    Statement select = connection().createStatement();
+                    ResultSet rs = select.executeQuery("select * from Usuario");
+                    while(rs.next()){
+                        if(rs.getString(1).equals(editTextUser.getText().toString()) && rs.getString(3).equals(editTextPassword.getText().toString())){
+                            Intent intent = new Intent(LoginActivity.this,Comunidad.class);
+                            intent.putExtra("id" , rs.getString(1));
+                            startActivity(intent);
+                        }
+                    }
+
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+    }
+
+
+    public Connection connection(){
+        Connection con = null;
+        try {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+            Class.forName("net.sourceforge.jtds.jdbc.Driver").newInstance();
+            con = DriverManager.getConnection("jdbc:jtds:sqlserver://oracle.ilerna.com;databaseName=OurWay_Artero_Fernandes_Rodriguez;user=DAM2_DEVLabs;password=a1DEVLabs");
+        }
+        catch(Exception e) {
+           e.printStackTrace();
+        }
+        return con;
+    }
+}
